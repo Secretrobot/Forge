@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b1020" />
+  <title>Forge v1</title>
+  <style>
+    :root{
+      --bg:#060914;
+      --bg2:#0d1326;
+      --card:rgba(18,25,46,.82);
+      --card-2:rgba(26,35,64,.9);
+      --text:#edf2ff;
+      --muted:#a9b6d3;
+      --line:rgba(255,255,255,.08);
+      --blue:#5aa8ff;
+      --blue-2:#79beff;
+      --green:#57d6a1;
+      --amber:#ffcf67;
+      --red:#ff7c91;
+      --shadow:0 18px 40px rgba(0,0,0,.35);
+      --radius:22px;
+      --tap:54px;
+      --pb-shift:0deg;
+    }
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html,body{margin:0;height:100%;background:radial-gradient(circle at top, #132047 0%, #091122 36%, #060914 70%);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+    body{min-height:100vh;overflow-x:hidden}
+    .app{max-width:540px;margin:0 auto;padding:env(safe-area-inset-top) 14px calc(96px + env(safe-area-inset-bottom)) 14px}
+    .glass{backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02));border:1px solid var(--line);box-shadow:var(--shadow)}
+    .hero{position:sticky;top:0;z-index:20;padding-top:10px;padding-bottom:10px;background:linear-gradient(180deg, rgba(6,9,20,.92), rgba(6,9,20,.45) 70%, transparent)}
+    .hero-card{padding:16px;border-radius:28px}
+    .row{display:flex;gap:12px;align-items:center}
+    .between{display:flex;justify-content:space-between;align-items:center;gap:12px}
+    .title{font-size:28px;font-weight:800;letter-spacing:.2px}
+    .subtitle{color:var(--muted);font-size:13px}
+    .badge{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(90,168,255,.14);border:1px solid rgba(90,168,255,.22);font-size:12px;color:#dceaff}
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+    .stat{padding:12px 10px;border-radius:18px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07);min-height:72px}
+    .stat .v{font-size:19px;font-weight:800;margin-top:4px}
+    .stat .l{font-size:11px;color:var(--muted)}
+    .section{margin-top:14px}
+    .card{border-radius:var(--radius);padding:14px}
+    .section-title{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.14em;margin:6px 4px 10px}
+    .primary{width:100%;min-height:60px;border:none;border-radius:20px;background:linear-gradient(180deg,var(--blue-2),var(--blue));color:#07101f;font-weight:900;font-size:17px;box-shadow:0 10px 26px rgba(90,168,255,.35)}
+    .secondary,.ghost,.pill,.tab{min-height:48px;border-radius:18px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--text);font-weight:700}
+    .ghost{background:transparent}
+    .pill{padding:0 14px;display:inline-flex;align-items:center;justify-content:center}
+    .tab{flex:1}
+    .tab.active{background:rgba(90,168,255,.15);border-color:rgba(90,168,255,.4);color:#dceaff}
+    .stack{display:grid;gap:10px}
+    .mini{font-size:12px;color:var(--muted)}
+    .big{font-size:20px;font-weight:800}
+    .next-title{font-size:24px;font-weight:900;margin:6px 0}
+    .chips{display:flex;gap:8px;flex-wrap:wrap}
+    .chip{padding:9px 12px;border-radius:999px;background:rgba(255,255,255,.045);border:1px solid var(--line);color:var(--text);font-size:13px}
+    .chip.on{background:rgba(87,214,161,.13);border-color:rgba(87,214,161,.3)}
+    .grid{display:grid;gap:10px}
+    .exercise{padding:12px;border-radius:20px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)}
+    .exercise h4{margin:0 0 6px;font-size:17px}
+    .exercise .meta{color:var(--muted);font-size:12px;display:flex;gap:8px;flex-wrap:wrap}
+    .sets{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+    .setbtn{min-height:56px;border-radius:18px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--text);font-weight:800;padding:6px}
+    .setbtn.done{background:rgba(90,168,255,.14);border-color:rgba(90,168,255,.4)}
+    .setbtn small{display:block;color:var(--muted);font-weight:600;font-size:11px;margin-top:2px}
+    .input, select, textarea{width:100%;min-height:52px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--text);padding:12px 14px;font-size:16px;outline:none}
+    .input::placeholder, textarea::placeholder{color:#8090b3}
+    textarea{min-height:88px;resize:vertical}
+    label{font-size:12px;color:var(--muted);display:block;margin:0 0 6px 2px}
+    .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .three{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    .nav{position:fixed;left:50%;transform:translateX(-50%);bottom:14px;width:min(540px,calc(100vw - 20px));padding:8px;border-radius:26px;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;z-index:40}
+    .nav button{min-height:58px;border-radius:20px;border:none;background:rgba(255,255,255,.05);color:var(--muted);font-weight:800}
+    .nav button.active{background:linear-gradient(180deg, rgba(90,168,255,.22), rgba(90,168,255,.1));color:var(--text);border:1px solid rgba(90,168,255,.22)}
+    .screen{display:none}
+    .screen.active{display:block}
+    .list-item{padding:12px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)}
+    .history-item{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center}
+    .icon{width:40px;height:40px;border-radius:14px;display:grid;place-items:center;background:rgba(255,255,255,.05);font-size:18px}
+    .muted{color:var(--muted)}
+    .small{font-size:12px}
+    .month-grid{display:grid;grid-template-columns:repeat(31,1fr);gap:3px}
+    .months-wrap{display:grid;gap:12px}
+    .month-block{padding:10px;border-radius:20px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07)}
+    .month-label{font-size:12px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.12em}
+    .day{aspect-ratio:1;border-radius:4px;background:#0f1528;border:1px solid rgba(255,255,255,.03);position:relative;overflow:hidden}
+    .day.miss{background:#090b12}
+    .day.workout{background:linear-gradient(180deg,#2a69b8,#4da6ff)}
+    .day.mobility{background:linear-gradient(180deg,#215a50,#36ad90)}
+    .day.pb::after{content:"";position:absolute;inset:-50%;background:linear-gradient(calc(120deg + var(--pb-shift)), transparent 40%, rgba(255,255,255,.08) 48%, rgba(255,255,255,.4) 50%, rgba(255,255,255,.08) 52%, transparent 60%);animation:sheen 3.6s linear infinite}
+    @keyframes sheen{from{transform:translateX(-55%) translateY(-10%) rotate(10deg)}to{transform:translateX(55%) translateY(10%) rotate(10deg)}}
+    .progress{height:10px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden}
+    .bar{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--green),#9cf0d0)}
+    .modal{position:fixed;inset:0;background:rgba(5,8,18,.72);backdrop-filter:blur(10px);display:none;align-items:flex-end;z-index:60}
+    .modal.open{display:flex}
+    .sheet{width:100%;max-width:540px;margin:0 auto;border-radius:28px 28px 0 0;padding:16px;max-height:88vh;overflow:auto;background:linear-gradient(180deg,#141d37,#0c1223);border:1px solid var(--line)}
+    .right{margin-left:auto}
+    .tag{padding:6px 8px;border-radius:10px;background:rgba(255,255,255,.05);font-size:11px;color:var(--muted)}
+    .hint{padding:12px;border-radius:18px;background:rgba(255,255,255,.04);border:1px dashed rgba(255,255,255,.1);color:#dce6ff}
+    .ok{color:var(--green)} .warn{color:var(--amber)} .bad{color:var(--red)}
+    .footer-space{height:10px}
+    .empty{padding:24px 14px;text-align:center;color:var(--muted)}
+    .hr{height:1px;background:var(--line);margin:10px 0}
+    .switch{position:relative;width:58px;height:34px;background:rgba(255,255,255,.1);border:1px solid var(--line);border-radius:999px;cursor:pointer}
+    .switch::after{content:"";position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:50%;background:#fff;transition:.22s ease;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+    .switch.on{background:rgba(87,214,161,.3)}
+    .switch.on::after{left:27px;background:#dffff4}
+    .text-right{text-align:right}
+    @media (min-width:680px){.app{padding-left:18px;padding-right:18px}.nav{bottom:18px}}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="hero">
+      <div class="hero-card glass">
+        <div class="between">
+          <div>
+            <div class="title">Forge v1</div>
+            <div class="subtitle">Offline comeback training log</div>
+          </div>
+          <div class="badge" id="heroBadge">Ready</div>
+        </div>
+        <div class="stats">
+          <div class="stat"><div class="l">Streak</div><div class="v" id="streakStat">0</div></div>
+          <div class="stat"><div class="l">XP</div><div class="v" id="xpStat">0</div></div>
+          <div class="stat"><div class="l">Level</div><div class="v" id="levelStat">1</div></div>
+          <div class="stat"><div class="l">Sessions</div><div class="v" id="sessionsStat">0</div></div>
+        </div>
+      </div>
+    </div>
+
+    <section class="screen active" id="screen-home"></section>
+    <section class="screen" id="screen-session"></section>
+    <section class="screen" id="screen-history"></section>
+    <section class="screen" id="screen-insights"></section>
+    <section class="screen" id="screen-settings"></section>
+
+    <div class="footer-space"></div>
+  </div>
+
+  <div class="nav glass">
+    <button class="active" data-screen="home">Home</button>
+    <button data-screen="session">Train</button>
+    <button data-screen="history">History</button>
+    <button data-screen="insights">Year</button>
+    <button data-screen="settings">More</button>
+  </div>
+
+  <div class="modal" id="modal">
+    <div class="sheet" id="sheet"></div>
+  </div>
+
+<script>
+(() => {
+  const DB_NAME = 'forge-v1-db';
+  const DB_VERSION = 1;
+  const STORE = 'kv';
+  const todayISO = () => new Date().toISOString().slice(0,10);
+  const nowISO = () => new Date().toISOString();
+  const dayMs = 86400000;
+  const cycle = ['Push','Run','Pull','Run','Legs'];
+
+  const defaults = {
+    settings: {
+      lowEnergyMode: false,
+      bodyweightUnit: 'kg',
+      theme: 'night',
+      achievementsSeen: []
+    },
+    state: {
+      sequence: cycle,
+      sessions: [],
+      measurements: [],
+      achievements: [],
+      autosave: null,
+      manualNextType: null,
+      notes: '',
+      createdAt: nowISO()
+    }
+  };
+
+  const templates = {
+    Push: {
+      core: [
+        {name:'Bench Press', muscle:'Chest', sets:3, repRange:[8,10]},
+        {name:'Incline Dumbbell Press', muscle:'Upper Chest', sets:3, repRange:[8,10]},
+        {name:'Seated Shoulder Press', muscle:'Shoulders', sets:3, repRange:[8,10]},
+        {name:'Cable Triceps Pushdown', muscle:'Triceps', sets:3, repRange:[8,10]}
+      ],
+      extras: [
+        {name:'Lateral Raise', muscle:'Shoulders', sets:3, repRange:[10,12]},
+        {name:'Chest Fly', muscle:'Chest', sets:3, repRange:[10,12]},
+        {name:'Overhead Triceps Extension', muscle:'Triceps', sets:3, repRange:[10,12]}
+      ]
+    },
+    Pull: {
+      core: [
+        {name:'Lat Pulldown', muscle:'Back', sets:3, repRange:[8,10]},
+        {name:'Chest Supported Row', muscle:'Back', sets:3, repRange:[8,10]},
+        {name:'Face Pull', muscle:'Rear Delts', sets:3, repRange:[10,12]},
+        {name:'EZ Bar Curl', muscle:'Biceps', sets:3, repRange:[8,10]}
+      ],
+      extras: [
+        {name:'Hammer Curl', muscle:'Biceps', sets:3, repRange:[10,12]},
+        {name:'Single Arm Cable Row', muscle:'Back', sets:3, repRange:[10,12]},
+        {name:'Reverse Fly', muscle:'Rear Delts', sets:3, repRange:[12,15]}
+      ]
+    },
+    Legs: {
+      core: [
+        {name:'Leg Press', muscle:'Quads', sets:3, repRange:[8,10]},
+        {name:'Romanian Deadlift', muscle:'Hamstrings', sets:3, repRange:[8,10]},
+        {name:'Leg Curl', muscle:'Hamstrings', sets:3, repRange:[8,10]},
+        {name:'Calf Raise', muscle:'Calves', sets:3, repRange:[10,12]}
+      ],
+      extras: [
+        {name:'Split Squat', muscle:'Glutes', sets:3, repRange:[8,10]},
+        {name:'Leg Extension', muscle:'Quads', sets:3, repRange:[10,12]},
+        {name:'Ab Wheel', muscle:'Core', sets:3, repRange:[8,12]}
+      ]
+    },
+    Run: {
+      core: [], extras: []
+    },
+    Mobility: {
+      core: [
+        {name:'Hip Flow', muscle:'Mobility', sets:1, repRange:[10,15]},
+        {name:'Thoracic Opener', muscle:'Mobility', sets:1, repRange:[10,15]},
+        {name:'Ankle Mobility', muscle:'Mobility', sets:1, repRange:[10,15]}
+      ], extras: []
+    }
+  };
+
+  const icons = {Push:'⬆️', Pull:'↘️', Legs:'🦵', Run:'🏃', Mobility:'🧘'};
+
+  const $ = (s,p=document)=>p.querySelector(s);
+  const $$ = (s,p=document)=>Array.from(p.querySelectorAll(s));
+
+  let db, app;
+
+  function openDB(){
+    return new Promise((resolve,reject)=>{
+      const req = indexedDB.open(DB_NAME, DB_VERSION);
+      req.onupgradeneeded = e => {
+        const d = e.target.result;
+        if (!d.objectStoreNames.contains(STORE)) d.createObjectStore(STORE);
+      };
+      req.onsuccess = ()=> resolve(req.result);
+      req.onerror = ()=> reject(req.error);
+    });
+  }
+  function idbGet(key){
+    return new Promise((resolve,reject)=>{
+      const tx = db.transaction(STORE,'readonly');
+      const req = tx.objectStore(STORE).get(key);
+      req.onsuccess = ()=>resolve(req.result);
+      req.onerror = ()=>reject(req.error);
+    });
+  }
+  function idbSet(key,val){
+    return new Promise((resolve,reject)=>{
+      const tx = db.transaction(STORE,'readwrite');
+      tx.objectStore(STORE).put(val,key);
+      tx.oncomplete = ()=>resolve();
+      tx.onerror = ()=>reject(tx.error);
+    });
+  }
+
+  function deepClone(v){ return JSON.parse(JSON.stringify(v)); }
+
+  async function loadApp(){
+    db = await openDB();
+    const saved = await idbGet('forge');
+    app = saved || deepClone(defaults);
+    await save();
+  }
+  async function save(){
+    await idbSet('forge', app);
+    renderChrome();
+  }
+
+  function xpForSession(session){
+    if (session.type === 'Run') return 28 + (session.pbHits?.length||0) * 10;
+    if (session.type === 'Mobility') return 18;
+    return 35 + (session.exercises?.length||0) * 2;
+  }
+  function levelFromXP(xp){ return Math.floor(Math.sqrt(xp / 55)) + 1; }
+
+  function getLastSession(type=null){
+    const list = [...app.state.sessions].reverse();
+    return type ? list.find(s=>s.type===type) : list[0];
+  }
+  function getLastStrengthSession(exName){
+    return [...app.state.sessions].reverse().find(s => ['Push','Pull','Legs','Mobility'].includes(s.type) && (s.exercises||[]).some(e=>e.name===exName));
+  }
+  function getLastExerciseEntry(name){
+    for (const s of [...app.state.sessions].reverse()) {
+      const ex = (s.exercises||[]).find(e=>e.name===name);
+      if (ex) return {session:s, exercise:ex};
+    }
+    return null;
+  }
+
+  function inferNextWorkout(){
+    if (app.state.manualNextType) return app.state.manualNextType;
+    const last = getLastSession();
+    if (!last) return 'Push';
+    if (last.type === 'Mobility') {
+      const prev = [...app.state.sessions].reverse().find(s=>s.type!=='Mobility');
+      if (!prev) return 'Push';
+      return nextFromSequence(prev.type);
+    }
+    return nextFromSequence(last.type);
+  }
+  function nextFromSequence(type){
+    const seq = app.state.sequence;
+    const idx = seq.indexOf(type);
+    if (idx === -1) return seq[0];
+    return seq[(idx + 1) % seq.length];
+  }
+
+  function getExerciseSuggestion(name, defaultSets=3, defaultRepRange=[8,10]){
+    const prev = getLastExerciseEntry(name);
+    let suggestedWeight = '';
+    let lastWeight = '';
+    let lastReps = '';
+    let message = 'No history yet';
+    if (prev) {
+      const weights = prev.exercise.sets.map(s=>Number(s.weight)||0).filter(Boolean);
+      const reps = prev.exercise.sets.map(s=>Number(s.reps)||0).filter(Boolean);
+      lastWeight = weights[0] || '';
+      lastReps = reps.join('/');
+      suggestedWeight = lastWeight;
+      const recent = getRecentExerciseSessions(name, 2);
+      const hit = recent.length === 2 && recent.every(item => {
+        const sets = item.exercise.sets || [];
+        return sets.length >= 3 && sets.slice(0,3).every(st => Number(st.reps) >= 10);
+      });
+      if (hit && lastWeight) {
+        suggestedWeight = roundLoad(Number(lastWeight) + incrementForLoad(Number(lastWeight)));
+        message = `Up next: try ${suggestedWeight}${app.settings.bodyweightUnit === 'lb' ? ' lb' : ' kg'} after 2 straight 3x10s`;
+      } else {
+        message = `Repeat ${lastWeight || '-'} for ${defaultSets} x ${defaultRepRange[0]}-${defaultRepRange[1]}`;
+      }
+    }
+    return {prev, suggestedWeight, lastWeight, lastReps, message};
+  }
+  function getRecentExerciseSessions(name, n=2){
+    const found = [];
+    for (const s of [...app.state.sessions].reverse()) {
+      const ex = (s.exercises||[]).find(e=>e.name===name);
+      if (ex) found.push({session:s, exercise:ex});
+      if (found.length >= n) break;
+    }
+    return found;
+  }
+  function incrementForLoad(load){ return load >= 60 ? 5 : 2.5; }
+  function roundLoad(n){ return Math.round(n * 2) / 2; }
+
+  function makeSessionDraft(type){
+    const t = templates[type];
+    if (type === 'Run') {
+      return {
+        id: crypto.randomUUID(), type, startedAt: nowISO(), date: todayISO(), notes:'',
+        run: {distance:'', time:'', pace:'', title:'Free Run'}, pbHits: []
+      };
+    }
+    const low = app.settings.lowEnergyMode && ['Push','Pull','Legs'].includes(type);
+    const items = [...t.core, ...(low ? [] : t.extras)].map(ex => {
+      const sug = getExerciseSuggestion(ex.name, ex.sets, ex.repRange);
+      const sets = Array.from({length: ex.sets}, () => ({weight: sug.suggestedWeight || sug.lastWeight || '', reps:'', done:false}));
+      return {...ex, sets, note:'', suggestedWeight: sug.suggestedWeight || '', lastWeight: sug.lastWeight || '', lastReps: sug.lastReps || '', suggestionText: sug.message};
+    });
+    return {id: crypto.randomUUID(), type, startedAt: nowISO(), date: todayISO(), exercises: items, notes:'', lowEnergy: !!low};
+  }
+
+  function autosaveDraft(draft){
+    app.state.autosave = draft;
+    save();
+  }
+
+  function calcPace(distance, timeText){
+    const dist = Number(distance);
+    const secs = parseDuration(timeText);
+    if (!dist || !secs) return '';
+    const per = secs / dist;
+    const m = Math.floor(per / 60), s = Math.round(per % 60).toString().padStart(2,'0');
+    return `${m}:${s}/mi`;
+  }
+  function parseDuration(t){
+    if (!t) return 0;
+    const parts = String(t).trim().split(':').map(Number);
+    if (parts.some(Number.isNaN)) return 0;
+    if (parts.length === 2) return parts[0]*60 + parts[1];
+    if (parts.length === 3) return parts[0]*3600 + parts[1]*60 + parts[2];
+    return Number(t) || 0;
+  }
+  function formatDuration(secs){
+    if (!secs) return '0:00';
+    const h = Math.floor(secs / 3600);
+    const m = Math.floor((secs % 3600)/60);
+    const s = Math.round(secs % 60).toString().padStart(2,'0');
+    return h ? `${h}:${String(m).padStart(2,'0')}:${s}` : `${m}:${s}`;
+  }
+  function distanceThresholds(maxDist){
+    const out = [];
+    for (let i=1;i<=Math.floor(maxDist);i++) out.push(i);
+    if (maxDist >= 0.5 && !out.includes(0.5)) out.unshift(0.5);
+    return out.filter(v=>v<=maxDist);
+  }
+  function computeRunPBs(candidateSession){
+    const base = getPBMap();
+    const dist = Number(candidateSession.run.distance||0);
+    const secs = parseDuration(candidateSession.run.time);
+    if (!dist || !secs) return [];
+    const thresholds = distanceThresholds(Math.min(dist, 10));
+    const hits = [];
+    thresholds.forEach(th => {
+      const projected = secs * (th / dist);
+      const prev = base[th];
+      if (!prev || projected < prev.seconds) hits.push({threshold:th, seconds:projected});
+    });
+    return hits;
+  }
+  function getPBMap(){
+    const map = {};
+    app.state.sessions.filter(s=>s.type==='Run').forEach(s => {
+      const dist = Number(s.run.distance||0), secs = parseDuration(s.run.time);
+      if (!dist || !secs) return;
+      distanceThresholds(Math.min(dist,10)).forEach(th => {
+        const projected = secs * (th / dist);
+        if (!map[th] || projected < map[th].seconds) map[th] = {seconds:projected, date:s.date};
+      });
+    });
+    return map;
+  }
+
+  function metrics(){
+    const sessions = app.state.sessions;
+    const xp = sessions.reduce((a,s)=>a + (s.xp || xpForSession(s)), 0);
+    const level = levelFromXP(xp);
+    const streak = computeStreak();
+    const consistency = monthlyConsistency();
+    return {sessions: sessions.length, xp, level, streak, consistency};
+  }
+  function computeStreak(){
+    if (!app.state.sessions.length) return 0;
+    const set = new Set(app.state.sessions.map(s=>s.date));
+    let streak = 0;
+    for (let d=new Date(); ; d = new Date(d.getTime()-dayMs)) {
+      const iso = d.toISOString().slice(0,10);
+      if (set.has(iso)) streak++; else {
+        if (streak===0) continue;
+        break;
+      }
+    }
+    return streak;
+  }
+  function monthlyConsistency(){
+    const month = todayISO().slice(0,7);
+    const count = app.state.sessions.filter(s=>s.date.startsWith(month)).length;
+    return Math.min(100, Math.round((count / 16) * 100));
+  }
+
+  function achievementsFor(session){
+    const out = [];
+    const sessions = [...app.state.sessions, session];
+    if (sessions.length === 1) out.push({key:'first-session', title:'First Strike', text:'Completed your first logged session.'});
+    const streak = computeStreakFromSessions(sessions);
+    if (streak >= 3 && !hasAchievement('streak-3')) out.push({key:'streak-3', title:'Back in Rhythm', text:'3-day streak reached.'});
+    if (streak >= 7 && !hasAchievement('streak-7')) out.push({key:'streak-7', title:'Steel Week', text:'7-day streak reached.'});
+    if (session.type === 'Run' && (session.pbHits||[]).length && !hasAchievement('pb-run')) out.push({key:'pb-run', title:'Fresh PB', text:'Set a running personal best.'});
+    if (session.type === 'Mobility' && !hasAchievement('mobility')) out.push({key:'mobility', title:'Recovery Counts', text:'Mobility session added to consistency.'});
+    return out;
+  }
+  function hasAchievement(key){ return app.state.achievements.some(a=>a.key===key); }
+  function computeStreakFromSessions(sessions){
+    const set = new Set(sessions.map(s=>s.date));
+    let streak=0;
+    for (let d=new Date(); ; d = new Date(d.getTime()-dayMs)) {
+      const iso = d.toISOString().slice(0,10);
+      if (set.has(iso)) streak++; else { if (streak===0) continue; break; }
+    }
+    return streak;
+  }
+
+  async function completeSession(session){
+    session.completedAt = nowISO();
+    if (session.type === 'Run') {
+      session.run.pace = calcPace(session.run.distance, session.run.time);
+      session.pbHits = computeRunPBs(session);
+    }
+    session.xp = xpForSession(session);
+    const newAchievements = achievementsFor(session);
+    app.state.sessions.push(session);
+    app.state.achievements.push(...newAchievements.map(a=>({...a, earnedAt:nowISO()})));
+    app.state.autosave = null;
+    if (app.state.manualNextType === session.type) app.state.manualNextType = null;
+    await save();
+    if (newAchievements.length) showAchievements(newAchievements);
+    switchScreen('home');
+    renderAll();
+  }
+
+  function friendlyDate(iso){
+    const d = new Date(iso+'T00:00:00');
+    return d.toLocaleDateString([], {month:'short', day:'numeric'});
+  }
+
+  function renderChrome(){
+    const m = metrics();
+    $('#streakStat').textContent = m.streak;
+    $('#xpStat').textContent = m.xp;
+    $('#levelStat').textContent = m.level;
+    $('#sessionsStat').textContent = m.sessions;
+    const next = inferNextWorkout();
+    $('#heroBadge').textContent = `Next: ${next}`;
+  }
+
+  function renderHome(){
+    const root = $('#screen-home');
+    const next = inferNextWorkout();
+    const last = getLastSession();
+    const m = metrics();
+    const pbTotal = Object.keys(getPBMap()).length;
+    root.innerHTML = `
+      <div class="section">
+        <div class="card glass stack">
+          <div class="between">
+            <div>
+              <div class="section-title" style="margin:0">Recommended next</div>
+              <div class="next-title">${icons[next]||'⚡'} ${next}</div>
+              <div class="mini">Suggested from your last completed session${app.state.manualNextType ? ' · manual override active' : ''}</div>
+            </div>
+            <button class="pill" id="overrideBtn">Override</button>
+          </div>
+          <button class="primary" id="startNextBtn">Start ${next}</button>
+          <div class="chips">
+            <span class="chip ${app.settings.lowEnergyMode?'on':''}" id="toggleLEM">Low Energy ${app.settings.lowEnergyMode ? 'On' : 'Off'}</span>
+            <span class="chip" id="startMobility">Mobility / Recovery</span>
+            ${app.state.autosave ? `<span class="chip" id="resumeChip">Resume in-progress</span>` : ''}
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Momentum</div>
+        <div class="grid" style="grid-template-columns:1fr 1fr">
+          <div class="card glass">
+            <div class="mini">Monthly consistency</div>
+            <div class="big">${m.consistency}%</div>
+            <div class="progress" style="margin-top:10px"><div class="bar" style="width:${m.consistency}%"></div></div>
+          </div>
+          <div class="card glass">
+            <div class="mini">Run PB thresholds</div>
+            <div class="big">${pbTotal}</div>
+            <div class="mini">0.5mi, 1mi, 2mi, 3mi, …</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Recent</div>
+        <div class="card glass stack">
+          ${last ? `
+            <div class="between">
+              <div>
+                <div class="big">${icons[last.type]||'⚡'} ${last.type}</div>
+                <div class="mini">${friendlyDate(last.date)} · ${sessionSummary(last)}</div>
+              </div>
+              <div class="tag">+${last.xp||xpForSession(last)} XP</div>
+            </div>
+          ` : `<div class="empty">No sessions yet. Start with Push.</div>`}
+          <div class="hint">Fast gym flow: tap <b>Train</b>, use <b>Repeat last</b> on each lift, and the app will autosave as you go.</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Weekly check-in</div>
+        <div class="card glass stack">
+          <div class="mini">Bodyweight, resting heart rate, and measurements</div>
+          <button class="secondary" id="checkinBtn">Log weekly check-in</button>
+          ${latestMeasurementCard()}
+        </div>
+      </div>
+    `;
+    $('#startNextBtn').onclick = () => startSession(next);
+    $('#overrideBtn').onclick = openOverrideSheet;
+    $('#toggleLEM').onclick = async () => { app.settings.lowEnergyMode = !app.settings.lowEnergyMode; await save(); renderAll(); };
+    $('#startMobility').onclick = () => startSession('Mobility');
+    if ($('#resumeChip')) $('#resumeChip').onclick = () => resumeDraft();
+    $('#checkinBtn').onclick = openMeasurementSheet;
+  }
+
+  function latestMeasurementCard(){
+    const m = [...app.state.measurements].reverse()[0];
+    if (!m) return `<div class="empty">No check-ins logged yet.</div>`;
+    return `<div class="list-item"><div class="between"><div><div class="big">${m.bodyweight || '-'} ${app.settings.bodyweightUnit}</div><div class="mini">${friendlyDate(m.date)} · RHR ${m.rhr || '-'} bpm</div></div><div class="tag">Weekly</div></div><div class="mini" style="margin-top:8px">Arm ${m.arm||'-'} · Chest ${m.chest||'-'} · Waist ${m.waist||'-'} · Shoulder ${m.shoulder||'-'} · Quad ${m.quad||'-'} · Calf ${m.calf||'-'}</div></div>`;
+  }
+
+  function sessionSummary(s){
+    if (s.type === 'Run') return `${s.run.distance} mi in ${s.run.time} · ${s.run.pace || calcPace(s.run.distance,s.run.time)}`;
+    if (s.type === 'Mobility') return 'Recovery / mobility';
+    return `${(s.exercises||[]).length} exercises`;
+  }
+
+  function renderSession(){
+    const root = $('#screen-session');
+    const draft = app.state.autosave;
+    if (!draft) {
+      const next = inferNextWorkout();
+      root.innerHTML = `
+        <div class="section">
+          <div class="section-title">Start a session</div>
+          <div class="card glass stack">
+            <button class="primary" id="startDefault">Start ${next}</button>
+            <div class="two">
+              ${['Push','Run','Pull','Legs','Mobility'].map(t=>`<button class="secondary start-type" data-type="${t}">${icons[t]} ${t}</button>`).join('')}
+            </div>
+          </div>
+        </div>`;
+      $('#startDefault').onclick = () => startSession(next);
+      $$('.start-type').forEach(b => b.onclick = () => startSession(b.dataset.type));
+      return;
+    }
+
+    if (draft.type === 'Run') {
+      root.innerHTML = `
+        <div class="section">
+          <div class="section-title">In progress</div>
+          <div class="card glass stack">
+            <div class="between"><div><div class="big">${icons[draft.type]} ${draft.type}</div><div class="mini">Started ${timeAgo(draft.startedAt)}</div></div><div class="tag">Autosaved</div></div>
+            <div>
+              <label>Title</label>
+              <input class="input" id="runTitle" value="${escapeHtml(draft.run.title || 'Free Run')}" />
+            </div>
+            <div class="two">
+              <div><label>Distance (mi)</label><input inputmode="decimal" class="input" id="runDistance" placeholder="3.0" value="${draft.run.distance || ''}" /></div>
+              <div><label>Time (mm:ss or h:mm:ss)</label><input class="input" id="runTime" placeholder="24:30" value="${draft.run.time || ''}" /></div>
+            </div>
+            <div class="list-item"><div class="mini">Pace</div><div class="big" id="runPaceLive">${draft.run.pace || calcPace(draft.run.distance, draft.run.time) || '--'}</div></div>
+            <div><label>Notes</label><textarea id="runNotes" placeholder="Route, feel, weather">${escapeHtml(draft.notes || '')}</textarea></div>
+            <div class="two">
+              <button class="secondary" id="discardRun">Discard</button>
+              <button class="primary" id="finishRun">Finish run</button>
+            </div>
+          </div>
+        </div>`;
+      ['runTitle','runDistance','runTime','runNotes'].forEach(id => {
+        $('#'+id).addEventListener('input', () => {
+          draft.run.title = $('#runTitle').value;
+          draft.run.distance = $('#runDistance').value;
+          draft.run.time = $('#runTime').value;
+          draft.run.pace = calcPace(draft.run.distance, draft.run.time);
+          draft.notes = $('#runNotes').value;
+          $('#runPaceLive').textContent = draft.run.pace || '--';
+          autosaveDraft(draft);
+        });
+      });
+      $('#discardRun').onclick = discardDraft;
+      $('#finishRun').onclick = async () => { if (!draft.run.distance || !draft.run.time) return toast('Add distance and time'); await completeSession(draft); };
+      return;
+    }
+
+    root.innerHTML = `
+      <div class="section">
+        <div class="section-title">In progress</div>
+        <div class="card glass stack">
+          <div class="between"><div><div class="big">${icons[draft.type]} ${draft.type}</div><div class="mini">Started ${timeAgo(draft.startedAt)}${draft.lowEnergy ? ' · Low Energy Mode' : ''}</div></div><div class="tag">Autosaved</div></div>
+          ${(draft.exercises||[]).map((ex, i) => renderExerciseCard(ex, i)).join('')}
+          <div>
+            <label>Session notes</label>
+            <textarea id="sessionNotes" placeholder="Anything worth remembering">${escapeHtml(draft.notes || '')}</textarea>
+          </div>
+          <div class="two">
+            <button class="secondary" id="discardDraftBtn">Discard</button>
+            <button class="primary" id="finishSessionBtn">Finish ${draft.type}</button>
+          </div>
+        </div>
+      </div>`;
+    bindExerciseEvents(draft);
+    $('#sessionNotes').addEventListener('input', () => { draft.notes = $('#sessionNotes').value; autosaveDraft(draft); });
+    $('#discardDraftBtn').onclick = discardDraft;
+    $('#finishSessionBtn').onclick = async () => {
+      if (!(draft.exercises||[]).some(ex => ex.sets.some(s => s.done || s.reps || s.weight))) return toast('Log at least one working set');
+      await completeSession(draft);
+    };
+  }
+
+  function renderExerciseCard(ex, i){
+    return `
+      <div class="exercise" data-ex="${i}">
+        <div class="between">
+          <div>
+            <h4>${escapeHtml(ex.name)}</h4>
+            <div class="meta"><span>${escapeHtml(ex.muscle)}</span><span>Last: ${ex.lastWeight || '-'} × ${ex.lastReps || '-'}</span></div>
+          </div>
+          <button class="pill repeat-last" data-ex="${i}">Repeat last</button>
+        </div>
+        <div class="hint" style="margin-top:10px">${escapeHtml(ex.suggestionText || 'Repeat last working weight')}</div>
+        <div class="sets">
+          ${ex.sets.map((s, si) => `
+            <button class="setbtn ${s.done ? 'done' : ''}" data-ex="${i}" data-set="${si}">
+              <span>${s.weight || '—'} × ${s.reps || '—'}</span>
+              <small>Set ${si+1}</small>
+            </button>
+          `).join('')}
+        </div>
+      </div>`;
+  }
+
+  function bindExerciseEvents(draft){
+    $$('.setbtn').forEach(btn => btn.onclick = () => openSetEditor(draft, Number(btn.dataset.ex), Number(btn.dataset.set)));
+    $$('.repeat-last').forEach(btn => btn.onclick = () => {
+      const ex = draft.exercises[Number(btn.dataset.ex)];
+      ex.sets.forEach(s => { if (!s.weight) s.weight = ex.lastWeight || ex.suggestedWeight || ''; });
+      autosaveDraft(draft); renderSession();
+    });
+  }
+
+  function renderHistory(){
+    const root = $('#screen-history');
+    const sessions = [...app.state.sessions].reverse();
+    const pbs = getPBMap();
+    root.innerHTML = `
+      <div class="section">
+        <div class="section-title">History</div>
+        <div class="card glass stack">
+          ${sessions.length ? sessions.map(s => `
+            <div class="list-item history-item">
+              <div class="icon">${icons[s.type]||'⚡'}</div>
+              <div>
+                <div><b>${s.type}</b> <span class="muted small">${friendlyDate(s.date)}</span></div>
+                <div class="small muted">${sessionSummary(s)}${s.pbHits?.length ? ` · PB ${s.pbHits.map(p=>p.threshold+'mi').join(', ')}` : ''}</div>
+              </div>
+              <div class="tag">+${s.xp||xpForSession(s)} XP</div>
+            </div>
+          `).join('') : '<div class="empty">No history yet.</div>'}
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-title">Run PBs</div>
+        <div class="card glass stack">
+          ${Object.keys(pbs).length ? Object.entries(pbs).sort((a,b)=>Number(a[0])-Number(b[0])).map(([k,v])=>`<div class="between list-item"><div><b>${k} mi</b><div class="mini">${friendlyDate(v.date)}</div></div><div class="big">${formatDuration(v.seconds)}</div></div>`).join('') : '<div class="empty">Run PBs will appear here.</div>'}
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-title">Achievements</div>
+        <div class="card glass stack">
+          ${app.state.achievements.length ? [...app.state.achievements].reverse().map(a => `<div class="list-item"><b>${escapeHtml(a.title)}</b><div class="mini">${escapeHtml(a.text)} · ${new Date(a.earnedAt).toLocaleDateString()}</div></div>`).join('') : '<div class="empty">Achievements unlock as momentum builds.</div>'}
+        </div>
+      </div>`;
+  }
+
+  function renderInsights(){
+    const root = $('#screen-insights');
+    root.innerHTML = `
+      <div class="section">
+        <div class="section-title">Year view</div>
+        <div class="card glass stack">
+          <div class="mini">Dark = miss · Blue = workout · Green = mobility · Silver sheen = PB day</div>
+          <div class="months-wrap">${renderYearGrid(new Date().getFullYear())}</div>
+        </div>
+      </div>`;
+  }
+
+  function renderYearGrid(year){
+    const sessionsByDate = Object.fromEntries(app.state.sessions.map(s => [s.date, s]));
+    const pbDays = new Set(app.state.sessions.filter(s=>s.pbHits?.length).map(s=>s.date));
+    const months = [];
+    for (let m=0; m<12; m++) {
+      const date = new Date(year, m, 1);
+      const lastDay = new Date(year, m+1, 0).getDate();
+      let cells = '';
+      for (let d=1; d<=31; d++) {
+        if (d > lastDay) { cells += `<div></div>`; continue; }
+        const iso = `${year}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const s = sessionsByDate[iso];
+        const cls = s ? (s.type === 'Mobility' ? 'mobility' : 'workout') : 'miss';
+        cells += `<div class="day ${cls} ${pbDays.has(iso) ? 'pb':''}" title="${iso}${s ? ' · '+s.type : ' · Miss'}"></div>`;
+      }
+      months.push(`<div class="month-block"><div class="month-label">${date.toLocaleDateString([], {month:'short'})}</div><div class="month-grid">${cells}</div></div>`);
+    }
+    return months.join('');
+  }
+
+  function renderSettings(){
+    const root = $('#screen-settings');
+    root.innerHTML = `
+      <div class="section">
+        <div class="section-title">Controls</div>
+        <div class="card glass stack">
+          <div class="between"><div><b>Low Energy Mode</b><div class="mini">Keep only core lifts and trim extras.</div></div><div class="switch ${app.settings.lowEnergyMode ? 'on':''}" id="lemSwitch"></div></div>
+          <div class="between"><div><b>Manual next workout</b><div class="mini">Override auto-suggestion.</div></div><button class="pill" id="manualNextBtn">${app.state.manualNextType || 'Set'}</button></div>
+          <div class="between"><div><b>Export backup</b><div class="mini">Save all local data to JSON.</div></div><button class="pill" id="exportBtn">Export</button></div>
+          <div class="between"><div><b>Import backup</b><div class="mini">Restore from a Forge JSON file.</div></div><button class="pill" id="importBtn">Import</button></div>
+          <div class="between"><div><b>Reset app</b><div class="mini">Delete local data on this device.</div></div><button class="pill bad" id="resetBtn">Reset</button></div>
+          <input type="file" id="importFile" accept="application/json" hidden />
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-title">Measurements</div>
+        <div class="card glass stack">
+          ${app.state.measurements.length ? [...app.state.measurements].reverse().slice(0,8).map(m => `<div class="list-item"><div class="between"><b>${friendlyDate(m.date)}</b><span class="tag">${m.bodyweight || '-'} ${app.settings.bodyweightUnit}</span></div><div class="mini">RHR ${m.rhr || '-'} · Waist ${m.waist || '-'} · Chest ${m.chest || '-'} · Arm ${m.arm || '-'} · Shoulder ${m.shoulder || '-'} · Quad ${m.quad || '-'} · Calf ${m.calf || '-'}</div></div>`).join('') : '<div class="empty">No weekly check-ins yet.</div>'}
+        </div>
+      </div>`;
+
+    $('#lemSwitch').onclick = async () => { app.settings.lowEnergyMode = !app.settings.lowEnergyMode; await save(); renderAll(); };
+    $('#manualNextBtn').onclick = openOverrideSheet;
+    $('#exportBtn').onclick = exportBackup;
+    $('#importBtn').onclick = () => $('#importFile').click();
+    $('#importFile').onchange = importBackup;
+    $('#resetBtn').onclick = resetApp;
+  }
+
+  function openOverrideSheet(){
+    openSheet(`
+      <div class="between"><div class="big">Manual next workout</div><button class="pill" id="closeSheet">Close</button></div>
+      <div class="mini" style="margin:8px 0 14px">Choose the next suggestion. Clear it to return to automatic sequencing.</div>
+      <div class="stack">
+        ${['Push','Run','Pull','Legs','Mobility'].map(t=>`<button class="secondary ov-type" data-type="${t}">${icons[t]} ${t}</button>`).join('')}
+        <button class="ghost" id="clearOverride">Clear override</button>
+      </div>
+    `);
+    $('#closeSheet').onclick = closeSheet;
+    $$('.ov-type').forEach(btn => btn.onclick = async () => { app.state.manualNextType = btn.dataset.type; await save(); closeSheet(); renderAll(); });
+    $('#clearOverride').onclick = async () => { app.state.manualNextType = null; await save(); closeSheet(); renderAll(); };
+  }
+
+  function openMeasurementSheet(){
+    const prev = [...app.state.measurements].reverse()[0] || {};
+    openSheet(`
+      <div class="between"><div class="big">Weekly check-in</div><button class="pill" id="closeSheet">Close</button></div>
+      <div class="three" style="margin-top:12px">
+        <div><label>Bodyweight</label><input class="input" id="mBody" value="${prev.bodyweight || ''}" /></div>
+        <div><label>Resting HR</label><input class="input" id="mRhr" value="${prev.rhr || ''}" /></div>
+        <div><label>Arm</label><input class="input" id="mArm" value="${prev.arm || ''}" /></div>
+      </div>
+      <div class="three" style="margin-top:10px">
+        <div><label>Chest</label><input class="input" id="mChest" value="${prev.chest || ''}" /></div>
+        <div><label>Waist</label><input class="input" id="mWaist" value="${prev.waist || ''}" /></div>
+        <div><label>Shoulder</label><input class="input" id="mShoulder" value="${prev.shoulder || ''}" /></div>
+      </div>
+      <div class="two" style="margin-top:10px">
+        <div><label>Quad</label><input class="input" id="mQuad" value="${prev.quad || ''}" /></div>
+        <div><label>Calf</label><input class="input" id="mCalf" value="${prev.calf || ''}" /></div>
+      </div>
+      <div class="two" style="margin-top:14px">
+        <button class="secondary" id="useToday">Use today</button>
+        <button class="primary" id="saveMeasurement">Save check-in</button>
+      </div>
+    `);
+    $('#closeSheet').onclick = closeSheet;
+    $('#useToday').onclick = ()=>toast('Using today\'s date');
+    $('#saveMeasurement').onclick = async ()=>{
+      app.state.measurements.push({
+        date: todayISO(),
+        bodyweight: $('#mBody').value,
+        rhr: $('#mRhr').value,
+        arm: $('#mArm').value,
+        chest: $('#mChest').value,
+        waist: $('#mWaist').value,
+        shoulder: $('#mShoulder').value,
+        quad: $('#mQuad').value,
+        calf: $('#mCalf').value
+      });
+      await save();
+      closeSheet();
+      renderAll();
+    };
+  }
+
+  function openSetEditor(draft, exIndex, setIndex){
+    const ex = draft.exercises[exIndex], set = ex.sets[setIndex];
+    openSheet(`
+      <div class="between"><div><div class="big">${escapeHtml(ex.name)}</div><div class="mini">Set ${setIndex+1} · Last ${ex.lastWeight || '-'} × ${ex.lastReps || '-'}</div></div><button class="pill" id="closeSheet">Close</button></div>
+      <div class="two" style="margin-top:14px">
+        <div><label>Weight</label><input class="input" id="setWeight" inputmode="decimal" value="${set.weight || ex.suggestedWeight || ex.lastWeight || ''}" /></div>
+        <div><label>Reps</label><input class="input" id="setReps" inputmode="numeric" value="${set.reps || ''}" /></div>
+      </div>
+      <div class="chips" style="margin-top:12px">
+        <span class="chip" id="useSuggestion">Use suggested ${ex.suggestedWeight || ex.lastWeight || '-'}</span>
+        <span class="chip" id="repeatWeight">Repeat last ${ex.lastWeight || '-'}</span>
+      </div>
+      <div class="two" style="margin-top:14px">
+        <button class="secondary" id="clearSet">Clear</button>
+        <button class="primary" id="saveSet">Save set</button>
+      </div>
+    `);
+    $('#closeSheet').onclick = closeSheet;
+    $('#useSuggestion').onclick = ()=> $('#setWeight').value = ex.suggestedWeight || ex.lastWeight || '';
+    $('#repeatWeight').onclick = ()=> $('#setWeight').value = ex.lastWeight || '';
+    $('#clearSet').onclick = ()=>{ set.weight=''; set.reps=''; set.done=false; autosaveDraft(draft); closeSheet(); renderSession(); };
+    $('#saveSet').onclick = ()=>{
+      set.weight = $('#setWeight').value;
+      set.reps = $('#setReps').value;
+      set.done = !!(set.weight || set.reps);
+      autosaveDraft(draft);
+      closeSheet();
+      renderSession();
+    };
+  }
+
+  function openSheet(html){
+    $('#sheet').innerHTML = html;
+    $('#modal').classList.add('open');
+  }
+  function closeSheet(){ $('#modal').classList.remove('open'); }
+  $('#modal').addEventListener('click', e => { if (e.target.id === 'modal') closeSheet(); });
+
+  function startSession(type){
+    app.state.autosave = makeSessionDraft(type);
+    save().then(()=>{ switchScreen('session'); renderAll(); });
+  }
+  function resumeDraft(){ switchScreen('session'); renderAll(); }
+  async function discardDraft(){ app.state.autosave = null; await save(); renderAll(); }
+
+  function switchScreen(name){
+    $$('.screen').forEach(s=>s.classList.toggle('active', s.id === 'screen-'+name));
+    $$('.nav button').forEach(b=>b.classList.toggle('active', b.dataset.screen===name));
+  }
+  $$('.nav button').forEach(btn => btn.onclick = ()=>{ switchScreen(btn.dataset.screen); });
+
+  function renderAll(){
+    renderChrome();
+    renderHome();
+    renderSession();
+    renderHistory();
+    renderInsights();
+    renderSettings();
+  }
+
+  function timeAgo(iso){
+    const diff = Math.max(1, Math.floor((Date.now() - new Date(iso)) / 60000));
+    if (diff < 60) return `${diff}m ago`;
+    const h = Math.floor(diff/60);
+    return `${h}h ago`;
+  }
+  function escapeHtml(s){
+    return String(s ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  }
+  function toast(msg){
+    const el = document.createElement('div');
+    el.textContent = msg;
+    Object.assign(el.style, {position:'fixed', left:'50%', transform:'translateX(-50%)', bottom:'94px', background:'rgba(11,18,35,.92)', color:'#fff', padding:'12px 16px', borderRadius:'16px', zIndex:80, border:'1px solid rgba(255,255,255,.08)', boxShadow:'0 10px 24px rgba(0,0,0,.35)'});
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(), 1900);
+  }
+  function showAchievements(items){
+    openSheet(`
+      <div class="big">Unlocked</div>
+      <div class="stack" style="margin-top:12px">
+        ${items.map(a=>`<div class="list-item"><b>${escapeHtml(a.title)}</b><div class="mini">${escapeHtml(a.text)}</div></div>`).join('')}
+        <button class="primary" id="closeAch">Nice</button>
+      </div>
+    `);
+    $('#closeAch').onclick = closeSheet;
+  }
+
+  function exportBackup(){
+    const blob = new Blob([JSON.stringify(app, null, 2)], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `forge-v1-backup-${todayISO()}.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+  function importBackup(e){
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async () => {
+      try {
+        const parsed = JSON.parse(reader.result);
+        if (!parsed?.state || !parsed?.settings) throw new Error('Invalid file');
+        app = parsed;
+        await save();
+        renderAll();
+        toast('Backup imported');
+      } catch {
+        toast('Could not import backup');
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  }
+  async function resetApp(){
+    if (!confirm('Delete all Forge data on this device?')) return;
+    app = deepClone(defaults);
+    await save();
+    renderAll();
+  }
+
+  function enablePBMotion(){
+    if (!window.DeviceOrientationEvent) return;
+    const handler = e => {
+      const gamma = Math.max(-45, Math.min(45, e.gamma || 0));
+      document.documentElement.style.setProperty('--pb-shift', `${gamma/3}deg`);
+    };
+    try {
+      if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+        window.addEventListener('click', async function once(){
+          window.removeEventListener('click', once);
+          try {
+            const res = await DeviceOrientationEvent.requestPermission();
+            if (res === 'granted') window.addEventListener('deviceorientation', handler);
+          } catch {}
+        }, {once:true});
+      } else {
+        window.addEventListener('deviceorientation', handler);
+      }
+    } catch {}
+  }
+
+  async function init(){
+    await loadApp();
+    renderAll();
+    enablePBMotion();
+    if ('serviceWorker' in navigator) {
+      const sw = `self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil(clients.claim()));self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(caches.open('forge-v1').then(async c=>{const m=await c.match(e.request);if(m)return m;try{const r=await fetch(e.request);if(e.request.url.startsWith(self.location.origin)) c.put(e.request,r.clone());return r;}catch(err){return m || new Response('',{status:503});}}))});`;
+      const blob = new Blob([sw], {type:'text/javascript'});
+      const url = URL.createObjectURL(blob);
+      navigator.serviceWorker.register(url).catch(()=>{});
+    }
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
